@@ -20,6 +20,7 @@ public class Order {
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
 
+
     public Order() {} 
 
     public Order(int orderId, User user, double totalAmount) {
@@ -33,6 +34,10 @@ public class Order {
         this.status = newStatus;
         System.out.println("Don hang #" + orderId + " da cap nhat trang thai: " + newStatus);
     }
+
+
+
+
 
     public int getOrderId() { return orderId; }
     public void setOrderId(int orderId) { this.orderId = orderId; }
