@@ -1,4 +1,4 @@
-package G2;
+package G2.WebsiteBanDT.models;
 
 import G2.WebsiteBanDT.*;
 

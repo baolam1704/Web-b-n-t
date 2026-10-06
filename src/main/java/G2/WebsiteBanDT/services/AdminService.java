@@ -1,5 +1,6 @@
-package G2;
+package G2.WebsiteBanDT.services;
 
+import G2.WebsiteBanDT.models.*;
 import java.util.ArrayList;
 import java.util.List;
 
