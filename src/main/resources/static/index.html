@@ -4,74 +4,137 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cửa Hàng Điện Thoại - PhoneStore</title>
-    <!-- Nhúng thư viện Bootstrap 5 CSS để giao diện đẹp sẵn -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body class="bg-light">
 
-    <!-- Thanh điều hướng (Navbar) -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container">
             <a class="navbar-brand" href="#">📱 PhoneStore Group 2</a>
-            <div class="d-flex">
-                <button class="btn btn-outline-light" type="button">
+            <div class="d-flex" id="auth-buttons">
+                <a href="register.html" class="btn btn-success me-2">Đăng ký</a>
+                <a href="login.html" class="btn btn-primary me-2">Đăng nhập</a>
+                
+                <button class="btn btn-outline-light" type="button" onclick="openCart()">
                     🛒 Giỏ hàng <span class="badge bg-danger" id="cart-count">0</span>
                 </button>
             </div>
         </div>
     </nav>
 
-    <!-- Khu vực hiển thị danh sách sản phẩm -->
+    <div id="login-warning" class="container mt-3" style="display: none;">
+        <div class="alert alert-warning text-center shadow-sm mb-0" role="alert">
+            ⚠️ Bạn cần <a href="login.html" class="alert-link fw-bold">Đăng nhập</a> hoặc <a href="register.html" class="alert-link fw-bold">Đăng ký</a> để có thể thêm sản phẩm vào giỏ hàng và mua hàng!
+        </div>
+    </div>
+
     <div class="container my-4">
         <h2 class="mb-4 text-center">Danh Sách Điện Thoại Nổi Bật</h2>
         <div class="row" id="product-list">
-            <!-- Sản phẩm 1 -->
             <div class="col-md-4 mb-3">
                 <div class="card h-100 shadow-sm">
                     <img src="https://via.placeholder.com/300x200" class="card-img-top" alt="Phone">
                     <div class="card-body d-flex flex-column">
                         <h5 class="card-title">iPhone 15 Pro Max</h5>
                         <p class="card-text text-danger fw-bold">28.990.000 đ</p>
-                        <button class="btn btn-primary mt-auto" onclick="addToCart('iPhone 15 Pro Max')">Thêm vào giỏ hàng</button>
+                        <button class="btn btn-primary mt-auto" onclick="addToCart('iPhone 15 Pro Max', 28990000)">Thêm vào giỏ hàng</button>
                     </div>
                 </div>
             </div>
-            <!-- Sản phẩm 2 -->
             <div class="col-md-4 mb-3">
                 <div class="card h-100 shadow-sm">
                     <img src="https://via.placeholder.com/300x200" class="card-img-top" alt="Phone">
                     <div class="card-body d-flex flex-column">
                         <h5 class="card-title">Samsung Galaxy S24 Ultra</h5>
                         <p class="card-text text-danger fw-bold">26.990.000 đ</p>
-                        <button class="btn btn-primary mt-auto" onclick="addToCart('Samsung Galaxy S24 Ultra')">Thêm vào giỏ hàng</button>
+                        <button class="btn btn-primary mt-auto" onclick="addToCart('Samsung Galaxy S24 Ultra', 26990000)">Thêm vào giỏ hàng</button>
                     </div>
                 </div>
             </div>
-            <!-- Sản phẩm 3 -->
             <div class="col-md-4 mb-3">
                 <div class="card h-100 shadow-sm">
                     <img src="https://via.placeholder.com/300x200" class="card-img-top" alt="Phone">
                     <div class="card-body d-flex flex-column">
                         <h5 class="card-title">Xiaomi 14 Pro</h5>
                         <p class="card-text text-danger fw-bold">18.990.000 đ</p>
-                        <button class="btn btn-primary mt-auto" onclick="addToCart('Xiaomi 14 Pro')">Thêm vào giỏ hàng</button>
+                        <button class="btn btn-primary mt-auto" onclick="addToCart('Xiaomi 14 Pro', 18990000)">Thêm vào giỏ hàng</button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Đoạn kịch bản JavaScript xử lý giỏ hàng tạm thời -->
     <script>
-        let cartCount = 0;
-        function addToCart(productName) {
-            cartCount++;
-            document.getElementById('cart-count').innerText = cartCount;
-            alert('Đã thêm "' + productName + '" vào giỏ hàng!');
+        window.addEventListener('DOMContentLoaded', function() {
+            const username = localStorage.getItem('username');
+            const authContainer = document.getElementById('auth-buttons');
+            const warningBanner = document.getElementById('login-warning');
+            
+            if (username) {
+                authContainer.innerHTML = `
+                    <span class="text-white align-self-center me-3">👤 Xin chào, <strong>${username}</strong></span>
+                    <button onclick="logout()" class="btn btn-outline-danger me-2">Đăng xuất</button>
+                    <button class="btn btn-outline-light" type="button" onclick="openCart()">
+                        🛒 Giỏ hàng <span class="badge bg-danger" id="cart-count">0</span>
+                    </button>
+                `;
+                if (warningBanner) warningBanner.style.display = 'none';
+            } else {
+                if (warningBanner) warningBanner.style.display = 'block';
+            }
+            updateCartCount();
+        });
+
+        function logout() {
+            localStorage.clear();
+            window.location.reload();
+        }
+
+        function addToCart(productName, price) {
+            const username = localStorage.getItem('username');
+            
+            if (!username) {
+                alert('⚠️ Vui lòng đăng nhập trước khi thêm sản phẩm vào giỏ hàng!');
+                window.location.href = 'login.html';
+                return;
+            }
+
+            let cart = JSON.parse(localStorage.getItem('cart_' + username)) || [];
+            cart.push({ productName, price });
+            localStorage.setItem('cart_' + username, JSON.stringify(cart));
+
+            updateCartCount();
+            alert('Đã thêm "' + productName + '" vào giỏ hàng thành công!');
+        }
+
+        function updateCartCount() {
+            const username = localStorage.getItem('username');
+            if (!username) {
+                document.getElementById('cart-count').innerText = 0;
+                return;
+            }
+            let cart = JSON.parse(localStorage.getItem('cart_' + username)) || [];
+            document.getElementById('cart-count').innerText = cart.length;
+        }
+
+        // Mở xem giỏ hàng
+        function openCart() {
+            const username = localStorage.getItem('username');
+            if (!username) {
+                alert('Vui lòng đăng nhập để xem giỏ hàng!');
+                window.location.href = 'login.html';
+                return;
+            }
+            let cart = JSON.parse(localStorage.getItem('cart_' + username)) || [];
+            if(cart.length === 0) {
+                alert('Giỏ hàng của bạn đang trống!');
+            } else {
+                let listItems = cart.map(item => `- ${item.productName}: ${item.price.toLocaleString('vi-VN')} đ`).join('\n');
+                alert('Danh sách giỏ hàng của bạn:\n\n' + listItems);
+            }
         }
     </script>
 
-    <!-- Thư viện Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
