@@ -20,7 +20,7 @@ public class Order {
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
 
-    public Order() {} // Constructor rỗng bắt buộc cho JPA
+    public Order() {} 
 
     public Order(int orderId, User user, double totalAmount) {
         this.orderId = orderId;
@@ -34,7 +34,6 @@ public class Order {
         System.out.println("Don hang #" + orderId + " da cap nhat trang thai: " + newStatus);
     }
 
-    // Getters và Setters
     public int getOrderId() { return orderId; }
     public void setOrderId(int orderId) { this.orderId = orderId; }
 
