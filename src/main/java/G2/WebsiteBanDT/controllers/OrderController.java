@@ -2,7 +2,7 @@ package G2.WebsiteBanDT.controllers;
 
 import G2.WebsiteBanDT.models.Order;
 import G2.WebsiteBanDT.repositories.OrderRepository;
-import G2.OrderStatus;
+import G2.WebsiteBanDT.models.OrderStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
