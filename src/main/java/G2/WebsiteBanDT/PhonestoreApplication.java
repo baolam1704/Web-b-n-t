@@ -1,4 +1,4 @@
-package com.store;
+package G2.WebsiteBanDT;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
