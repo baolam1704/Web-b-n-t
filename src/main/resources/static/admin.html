@@ -19,22 +19,22 @@
     </nav>
 
     <div class="container my-4">
-        <h2 class="mb-4 fw-bold text-secondary">Quản Lý Đơn Hàng & Hệ Thống</h2>
+        <h2 class="mb-4 fw-bold text-secondary">Hệ Thống Quản Trị Cửa Hàng</h2>
         
-        <div class="row text-white">
+        <div class="row text-white mb-4">
             <div class="col-md-4 mb-3">
                 <div class="card bg-primary shadow-sm border-0">
                     <div class="card-body">
-                        <h6 class="card-title text-uppercase fw-semibold">Tổng số đơn hàng</h6>
-                        <h3 id="total-orders" class="fw-bold">1</h3>
+                        <h6 class="card-title text-uppercase fw-semibold">Tổng đơn hàng</h6>
+                        <h3 id="total-orders" class="fw-bold">0</h3>
                     </div>
                 </div>
             </div>
             <div class="col-md-4 mb-3">
                 <div class="card bg-success shadow-sm border-0">
                     <div class="card-body">
-                        <h6 class="card-title text-uppercase fw-semibold">Doanh thu tạm tính</h6>
-                        <h3 id="total-revenue" class="fw-bold">28.990.000 đ</h3>
+                        <h6 class="card-title text-uppercase fw-semibold">Doanh thu (Đã duyệt)</h6>
+                        <h3 id="total-revenue" class="fw-bold">0 đ</h3>
                     </div>
                 </div>
             </div>
@@ -42,14 +42,14 @@
                 <div class="card bg-warning text-dark shadow-sm border-0">
                     <div class="card-body">
                         <h6 class="card-title text-uppercase fw-semibold">Sản phẩm trong kho</h6>
-                        <h3 class="fw-bold">3</h3>
+                        <h3 id="total-products" class="fw-bold">0</h3>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="card shadow-sm mt-4 border-0">
-            <div class="card-header bg-white py-3 fw-bold text-dark">📋 Danh sách đơn hàng cần duyệt</div>
+        <div class="card shadow-sm mb-5 border-0">
+            <div class="card-header bg-dark text-white py-3 fw-bold">📋 Quản Lý Đơn Hàng Của Khách Hàng</div>
             <div class="card-body p-0">
                 <div class="table-responsive">
                     <table class="table table-hover align-middle mb-0">
@@ -57,7 +57,7 @@
                             <tr>
                                 <th>ID Đơn</th>
                                 <th>Khách hàng</th>
-                                <th>Sản phẩm</th>
+                                <th>Sản phẩm đặt</th>
                                 <th>Tổng tiền</th>
                                 <th>Trạng thái</th>
                                 <th class="text-center">Thao tác</th>
@@ -69,68 +69,171 @@
                 </div>
             </div>
         </div>
+
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-secondary text-white py-3 d-flex justify-content-between align-items-center">
+                <span class="fw-bold">📱 Quản Lý Mặt Hàng Điện Thoại</span>
+                <button class="btn btn-light btn-sm fw-bold" data-bs-toggle="modal" data-bs-target="#addProductModal">+ Thêm sản phẩm mới</button>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Tên điện thoại</th>
+                                <th>Giá bán</th>
+                                <th class="text-center">Hành động</th>
+                            </tr>
+                        </thead>
+                        <tbody id="product-table-body">
+                            <!-- Render bằng JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
 
+    <div class="modal fade" id="addProductModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-dark text-white">
+                    <h5 class="modal-title">Thêm Sản Phẩm Mới</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Tên điện thoại</label>
+                        <input type="text" id="new-prod-name" class="form-control" placeholder="Ví dụ: iPhone 16 Pro Max" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Giá bán (VNĐ)</label>
+                        <input type="number" id="new-prod-price" class="form-control" placeholder="Ví dụ: 30000000" required>
+                    </div>
+                    <button type="button" class="btn btn-success w-100 fw-bold" onclick="addNewProduct()">Lưu sản phẩm</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Dữ liệu mẫu ban đầu cho đơn hàng
-        let orders = [
-            { id: '#101', customer: 'nhomtruong', product: 'iPhone 15 Pro Max', price: 28990000, status: 'Chờ xác nhận' }
-        ];
+        window.onload = function() {
+            renderOrders();
+            renderProducts();
+        };
 
         function renderOrders() {
+            let orders = JSON.parse(localStorage.getItem('admin_orders')) || [];
             const tbody = document.getElementById('order-table-body');
             tbody.innerHTML = '';
-            
-            let activeOrdersCount = 0;
+
+            let activeCount = 0;
             let revenue = 0;
 
-            orders.forEach((order, index) => {
-                if (order.status !== 'Đã hủy') {
-                    activeOrdersCount++;
-                    if (order.status === 'Đã duyệt') {
-                        revenue += order.price;
-                    }
-                }
+            if (orders.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted py-3">Chưa có đơn hàng nào từ khách hàng!</td></tr>`;
+            } else {
+                orders.forEach((order, index) => {
+                    if (order.status !== 'Đã hủy') activeCount++;
+                    if (order.status === 'Đã duyệt') revenue += order.price;
 
-                let badgeClass = 'bg-warning text-dark';
-                if (order.status === 'Đã duyệt') badgeClass = 'bg-success';
-                if (order.status === 'Đã hủy') badgeClass = 'bg-danger';
+                    let badgeClass = 'bg-warning text-dark';
+                    if (order.status === 'Đã duyệt') badgeClass = 'bg-success';
+                    if (order.status === 'Đã hủy') badgeClass = 'bg-danger';
 
-                const row = `
-                    <tr>
-                        <td class="fw-bold">${order.id}</td>
-                        <td>${order.customer}</td>
-                        <td>${order.product}</td>
-                        <td class="text-danger fw-bold">${order.price.toLocaleString('vi-VN')} đ</td>
-                        <td><span class="badge ${badgeClass}">${order.status}</span></td>
-                        <td class="text-center">
-                            ${order.status === 'Chờ xác nhận' ? `
-                                <button class="btn btn-success btn-sm me-1" onclick="updateOrderStatus(${index}, 'Đã duyệt')">Duyệt</button>
-                                <button class="btn btn-danger btn-sm" onclick="updateOrderStatus(${index}, 'Đã hủy')">Hủy</button>
-                            ` : `<span class="text-muted fst-italic">Đã xử lý</span>`}
-                        </td>
-                    </tr>
-                `;
-                tbody.innerHTML += row;
-            });
+                    tbody.innerHTML += `
+                        <tr>
+                            <td class="fw-bold">${order.id}</td>
+                            <td>${order.customer}</td>
+                            <td>${order.product}</td>
+                            <td class="text-danger fw-bold">${order.price.toLocaleString('vi-VN')} đ</td>
+                            <td><span class="badge ${badgeClass}">${order.status}</span></td>
+                            <td class="text-center">
+                                ${order.status === 'Chờ xác nhận' ? `
+                                    <button class="btn btn-success btn-sm me-1" onclick="updateOrderStatus(${index}, 'Đã duyệt')">Duyệt</button>
+                                    <button class="btn btn-danger btn-sm" onclick="updateOrderStatus(${index}, 'Đã hủy')">Hủy</button>
+                                ` : `<span class="text-muted fst-italic">Đã xử lý</span>`}
+                            </td>
+                        </tr>
+                    `;
+                });
+            }
 
-            document.getElementById('total-orders').innerText = activeOrdersCount;
+            document.getElementById('total-orders').innerText = activeCount;
             document.getElementById('total-revenue').innerText = revenue.toLocaleString('vi-VN') + ' đ';
         }
 
         function updateOrderStatus(index, newStatus) {
+            let orders = JSON.parse(localStorage.getItem('admin_orders')) || [];
             orders[index].status = newStatus;
-            renderOrders(); 
-            if(newStatus === 'Đã duyệt') {
-                alert('Đã duyệt đơn hàng thành công!');
-            } else {
-                alert('Đã hủy đơn hàng!');
-            }
+            localStorage.setItem('admin_orders', JSON.stringify(orders));
+            renderOrders();
+            alert('Đã cập nhật trạng thái đơn hàng thành: ' + newStatus);
         }
 
-        window.onload = renderOrders;
-    </script>
+        // --- QUẢN LÝ SẢN PHẨM ---
+        function renderProducts() {
+            if (!localStorage.getItem('store_products')) {
+                const defaultProducts = [
+                    { name: 'iPhone 15 Pro Max', price: 28990000 },
+                    { name: 'Samsung Galaxy S24 Ultra', price: 26990000 },
+                    { name: 'Xiaomi 14 Pro', price: 18990000 }
+                ];
+                localStorage.setItem('store_products', JSON.stringify(defaultProducts));
+            }
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+            let products = JSON.parse(localStorage.getItem('store_products')) || [];
+            const tbody = document.getElementById('product-table-body');
+            tbody.innerHTML = '';
+
+            products.forEach((prod, index) => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="fw-semibold">${prod.name}</td>
+                        <td class="text-danger fw-bold">${prod.price.toLocaleString('vi-VN')} đ</td>
+                        <td class="text-center">
+                            <button class="btn btn-outline-danger btn-sm" onclick="deleteProduct(${index})">Xóa mặt hàng</button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            document.getElementById('total-products').innerText = products.length;
+        }
+
+        function addNewProduct() {
+            let name = document.getElementById('new-prod-name').value;
+            let price = parseFloat(document.getElementById('new-prod-price').value);
+
+            if (!name || !price) {
+                alert('Vui lòng điền đầy đủ tên và giá sản phẩm!');
+                return;
+            }
+
+            let products = JSON.parse(localStorage.getItem('store_products')) || [];
+            products.push({ name, price });
+            localStorage.setItem('store_products', JSON.stringify(products));
+
+            renderProducts();
+            
+            document.getElementById('new-prod-name').value = '';
+            document.getElementById('new-prod-price').value = '';
+            var modalEl = document.getElementById('addProductModal');
+            var modal = bootstrap.Modal.getInstance(modalEl);
+            modal.hide();
+
+            alert('Đã thêm sản phẩm mới vào cửa hàng thành công!');
+        }
+
+        function deleteProduct(index) {
+            let products = JSON.parse(localStorage.getItem('store_products')) || [];
+            if (confirm('Bạn có chắc chắn muốn xóa mặt hàng này khỏi cửa hàng?')) {
+                products.splice(index, 1);
+                localStorage.setItem('store_products', JSON.stringify(products));
+                renderProducts();
+            }
+        }
+    </script>
 </body>
 </html>
