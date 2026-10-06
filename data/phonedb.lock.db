@@ -1,0 +1,6 @@
+#FileLock
+#Tue Oct 06 22:26:50 GMT+07:00 2026
+hostName=BaoLam.lan
+id=1a111d31459b236719bd8c31f8a7ebd5f657b091751
+method=file
+server=192.168.100.82\:65009
