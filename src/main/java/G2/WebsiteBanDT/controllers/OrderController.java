@@ -2,6 +2,7 @@ package G2.WebsiteBanDT.controllers;
 
 import G2.WebsiteBanDT.models.Order;
 import G2.WebsiteBanDT.repositories.OrderRepository;
+import G2.OrderStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,7 +15,7 @@ public class OrderController {
 
     @PostMapping("/checkout")
     public Order createOrder(@RequestBody Order order) {
-        order.status = "PENDING"; // Trạng thái mặc định chờ duyệt
+        order.setStatus(OrderStatus.CHO_XAC_NHAN); // Dùng phương thức setter và kiểu OrderStatus
         return orderRepo.save(order);
     }
 }
