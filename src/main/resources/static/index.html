@@ -92,24 +92,40 @@
         }
 
         function renderProducts() {
+            // Danh sách sản phẩm tích hợp sẵn hình ảnh thực tế
+            const defaultProducts = [
+                { 
+                    name: 'iPhone 15 Pro Max', 
+                    price: 28990000, 
+                    image: 'https://bhstore.vn/uploads/iphone-15-promax-bhstore_3_1731640873.png' 
+                },
+                { 
+                    name: 'Samsung Galaxy S24 Ultra', 
+                    price: 26990000, 
+                    image: 'https://www.didongmy.com/vnt_upload/product/01_2024/thumbs/(600x600)_samsung_galaxy_s24_ultra_5g_tim_didongmy_thumb_600x600_1_3.jpg' 
+                },
+                { 
+                    name: 'Xiaomi 17 Pro', 
+                    price: 18990000, 
+                    image: 'https://cdn.hstatic.net/products/200000547251/promx_05cef000dabe4d3cad0318ed8ad6ec47_master.png' 
+                }
+            ];
+
             if (!localStorage.getItem('store_products')) {
-                const defaultProducts = [
-                    { name: 'iPhone 15 Pro Max', price: 28990000 },
-                    { name: 'Samsung Galaxy S24 Ultra', price: 26990000 },
-                    { name: 'Xiaomi 14 Pro', price: 18990000 }
-                ];
                 localStorage.setItem('store_products', JSON.stringify(defaultProducts));
             }
 
-            let products = JSON.parse(localStorage.getItem('store_products')) || [];
+            let products = JSON.parse(localStorage.getItem('store_products')) || defaultProducts;
             const productList = document.getElementById('product-list');
             productList.innerHTML = '';
 
             products.forEach(prod => {
+                // Nếu sản phẩm chưa có ảnh, gán ảnh mặc định
+                let imgSrc = prod.image || 'https://via.placeholder.com/300x200';
                 productList.innerHTML += `
                     <div class="col-md-4 mb-3">
                         <div class="card h-100 shadow-sm">
-                            <img src="https://via.placeholder.com/300x200" class="card-img-top" alt="Phone">
+                            <img src="${imgSrc}" class="card-img-top p-3" alt="${prod.name}" style="height: 250px; object-fit: contain;">
                             <div class="card-body d-flex flex-column">
                                 <h5 class="card-title">${prod.name}</h5>
                                 <p class="card-text text-danger fw-bold">${prod.price.toLocaleString('vi-VN')} đ</p>
